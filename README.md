@@ -14,6 +14,12 @@ Junta os dois sistemas de impressao num servico so:
 iniciar.bat
 ```
 
+Antes de subir, o `iniciar.bat` verifica e instala o que faltar: Node.js LTS,
+Python 3, LibreOffice e ODBC Driver 18 for SQL Server (via `winget`, pode pedir
+permissao de administrador), o `termos/venv` com os pacotes do `requirements.txt`
+e os pacotes Node do `whatsapp/`. Na primeira vez, cria o `.env` a partir de
+`termos/.env.example` e abre no Bloco de Notas para preencher.
+
 Sobe os dois servicos no mesmo terminal. O QR code do WhatsApp aparece ali na
 primeira vez (ou quando a sessao expirar). A pagina dos termos fica em
 `http://<este-computador>:8501`. Se um dos servicos cair, ele e reiniciado em 5s.
