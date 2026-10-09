@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c62828">
+<title>Novo modelo · Autorizações</title>
+<link rel="stylesheet" href="/web/estilo.css">
+</head>
+<body>
+<header class="topo">
+  <h1>Novo modelo</h1>
+  <a href="/" class="link" style="color:inherit">← Voltar</a>
+</header>
+
+<main style="padding-bottom:40px">
+  <p class="dica">Envie um arquivo Word (.docx) com linhas em branco (<code>______</code>) e escolha o que vai em cada uma.</p>
+  <label for="arquivo">Arquivo .docx</label>
+  <input id="arquivo" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+  <div id="msg"></div>
+
+  <form id="form-campos" hidden>
+    <div id="campos"></div>
+    <label for="nome">Nome do modelo</label>
+    <input id="nome" placeholder="ex: termo_viagem" required>
+    <button class="primario" style="margin-top:14px">💾 Salvar modelo</button>
+  </form>
+</main>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="/web/comum.js"></script>
+<script>
+const NOMES_TAGS = {
+  "{{RESPONSAVEL}}": "Nome do responsável",
+  "{{CPF RESPONSAVEL}}": "CPF do responsável",
+  "{{RG RESPONSAVEL}}": "RG do responsável",
+  "{{ENDERECO RESPONSAVEL}}": "Endereço do responsável",
+  "{{EMAIL RESPONSAVEL}}": "E-mail do responsável",
+  "{{NOME MENOR}}": "Nome do menor",
+  "{{CPF MENOR}}": "CPF do menor",
+  "{{RG MENOR}}": "RG do menor",
+  "{{IDADE MENOR}}": "Idade do menor",
+  "{{DATA ASSINATURA}}": "Data de hoje (por extenso)",
+  "{{MAT}}": "Matrícula",
+  "{{IGNORAR}}": "Deixar a linha em branco",
+};
+
+$("#arquivo").addEventListener("change", async (e) => {
+  const arquivo = e.target.files[0];
+  $("#form-campos").hidden = true;
+  if (!arquivo) return;
+  $("#msg").replaceChildren(el("p", { class: "dica" }, "Analisando…"));
+  const fd = new FormData();
+  fd.append("arquivo", arquivo);
+  try {
+    const r = await api("/api/modelos/analisar", { method: "POST", body: fd });
+    if (!r.campos.length) {
+      $("#msg").replaceChildren(alerta("aviso", "Nenhuma linha (______) encontrada neste documento."));
+      return;
+    }
+    $("#msg").replaceChildren(alerta("ok", `${r.campos.length} campo(s) encontrado(s).`));
+    $("#campos").replaceChildren(...r.campos.map((c, i) => {
+      const sel = el("select", { id: `tag-${i}`, class: "tag" },
+        ...r.tags.map((t) => el("option", { value: t }, NOMES_TAGS[t] || t)));
+      sel.value = c.sugestao;
+      return el("div", { class: "campo-tpl" },
+        el("strong", {}, `Campo ${i + 1}`),
+        el("div", { class: "contexto" }, c.contexto ? `“${c.contexto} ______”` : "(início da linha)"),
+        el("label", { for: `tag-${i}` }, "Preencher com"), sel);
+    }));
+    $("#nome").value = arquivo.name.replace(/\.docx$/i, "");
+    $("#form-campos").hidden = false;
+  } catch (err) {
+    $("#msg").replaceChildren(alerta("erro", err.message));
+  }
+});
+
+$("#form-campos").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append("arquivo", $("#arquivo").files[0]);
+  fd.append("nome", $("#nome").value);
+  fd.append("mapeamento", JSON.stringify([...document.querySelectorAll("select.tag")].map((s) => s.value)));
+  try {
+    const r = await api("/api/modelos", { method: "POST", body: fd });
+    $("#form-campos").hidden = true;
+    $("#arquivo").value = "";
+    $("#msg").replaceChildren(alerta("ok", `${r.mensagem} Ele já aparece na tela inicial.`));
+  } catch (err) {
+    toast(`❌ ${err.message}`, 7000);
+  }
+});
+</script>
+</body>
+</html>

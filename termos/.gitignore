@@ -1,0 +1,12 @@
+templates/*
+
+output/*
+
+logs/*
+
+venv/
+
+.env
+__pycache__/
+build/
+dist/

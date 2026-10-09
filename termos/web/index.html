@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c62828">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Autorizações</title>
+<link rel="stylesheet" href="/web/estilo.css">
+</head>
+<body class="assistente">
+<header class="topo">
+  <button id="btn-voltar" class="topo-btn" aria-label="Voltar" hidden>‹ Voltar</button>
+  <h1 id="titulo">Autorizações</h1>
+  <button id="btn-config" class="topo-btn icone" aria-label="Configurações">⚙️</button>
+</header>
+
+<main id="palco">
+  <!-- INÍCIO -->
+  <section class="tela" data-tela="inicio">
+    <div id="aviso-modelo" class="alerta erro" hidden></div>
+    <div class="escolhas">
+      <button class="escolha" data-ir="socio">
+        <span class="emoji">👥</span>
+        <span class="rotulo">Sócio</span>
+        <span class="sub">Buscar pela matrícula</span>
+      </button>
+      <button class="escolha alt" data-ir="manual">
+        <span class="emoji">📝</span>
+        <span class="rotulo">Não sócio</span>
+        <span class="sub">Preencher os dados</span>
+      </button>
+    </div>
+    <button id="chip-modelo" class="chip" hidden></button>
+  </section>
+
+  <!-- MATRÍCULA (teclado na tela) -->
+  <section class="tela" data-tela="matricula">
+    <p id="mat-pergunta" class="pergunta">Digite a matrícula</p>
+    <div id="mat-visor" class="visor" aria-live="polite"></div>
+    <div id="mat-msg" class="msg"></div>
+    <div class="teclado" id="teclado">
+      <button data-tecla="1">1</button><button data-tecla="2">2</button><button data-tecla="3">3</button>
+      <button data-tecla="4">4</button><button data-tecla="5">5</button><button data-tecla="6">6</button>
+      <button data-tecla="7">7</button><button data-tecla="8">8</button><button data-tecla="9">9</button>
+      <button data-tecla="apagar" class="tecla-acao" aria-label="Apagar">⌫</button>
+      <button data-tecla="0">0</button>
+      <button data-tecla="ok" class="tecla-ok" aria-label="Buscar">Buscar</button>
+    </div>
+  </section>
+
+  <!-- RESPONSÁVEL -->
+  <section class="tela" data-tela="responsavel">
+    <p class="pergunta">Quem é o <strong>responsável</strong>?</p>
+    <div id="lista-resp" class="botoes-pessoa"></div>
+  </section>
+
+  <!-- MENOR -->
+  <section class="tela" data-tela="menor">
+    <p id="menor-pergunta" class="pergunta">Qual é o <strong>menor</strong>?</p>
+    <div id="lista-menor" class="botoes-pessoa"></div>
+    <button id="btn-outra-mat" class="grande secundario">🔎 Menor de outra matrícula</button>
+  </section>
+
+  <!-- NÃO SÓCIO: RESPONSÁVEL -->
+  <section class="tela" data-tela="m-resp">
+    <p class="pergunta">Dados do <strong>responsável</strong></p>
+    <form id="form-resp" class="formulario" autocomplete="off">
+      <label for="r-nome">Nome completo *</label>
+      <input id="r-nome" autocapitalize="words" enterkeyhint="next" required>
+      <label for="r-cpf">CPF</label>
+      <input id="r-cpf" inputmode="numeric" class="cpf" placeholder="000.000.000-00" enterkeyhint="next">
+      <label for="r-end">Endereço</label>
+      <input id="r-end" autocapitalize="words" enterkeyhint="next">
+      <label for="r-email">E-mail</label>
+      <input id="r-email" type="email" inputmode="email" autocapitalize="off" enterkeyhint="done">
+    </form>
+    <button id="btn-resp-ok" class="grande primario" disabled>Próximo →</button>
+  </section>
+
+  <!-- NÃO SÓCIO: MENOR -->
+  <section class="tela" data-tela="m-menor">
+    <p class="pergunta">Dados do <strong>menor</strong></p>
+    <form id="form-menor" class="formulario" autocomplete="off">
+      <label for="m-nome">Nome completo *</label>
+      <input id="m-nome" autocapitalize="words" enterkeyhint="next" required>
+      <label for="m-cpf">CPF</label>
+      <input id="m-cpf" inputmode="numeric" class="cpf" placeholder="000.000.000-00" enterkeyhint="done">
+    </form>
+    <button id="btn-menor-ok" class="grande primario" disabled>Próximo →</button>
+  </section>
+
+  <!-- NÃO SÓCIO: IDADE -->
+  <section class="tela" data-tela="m-idade">
+    <p class="pergunta">Qual a <strong>idade</strong> do menor?</p>
+    <div id="grade-idade" class="grade-idade"></div>
+  </section>
+
+  <!-- CONFIRMAR -->
+  <section class="tela" data-tela="confirmar">
+    <div class="resumo">
+      <div class="resumo-item">
+        <span class="resumo-rotulo">Responsável</span>
+        <span id="cf-resp" class="resumo-nome"></span>
+        <span id="cf-resp-det" class="resumo-det"></span>
+        <button class="trocar" data-trocar="resp">Trocar</button>
+      </div>
+      <div class="resumo-item">
+        <span class="resumo-rotulo">Menor</span>
+        <span id="cf-menor" class="resumo-nome"></span>
+        <span id="cf-menor-det" class="resumo-det"></span>
+        <button class="trocar" data-trocar="menor">Trocar</button>
+      </div>
+    </div>
+    <div id="cf-avisos"></div>
+    <button id="btn-imprimir" class="imprimir">
+      <span class="emoji">🖨️</span>
+      <span id="btn-imprimir-txt">IMPRIMIR</span>
+    </button>
+  </section>
+
+  <!-- RESULTADO -->
+  <section class="tela" data-tela="pronto">
+    <div class="resultado">
+      <div id="res-icone" class="res-icone">✅</div>
+      <p id="res-titulo" class="res-titulo">Enviado para a impressora</p>
+      <p id="res-det" class="res-det"></p>
+    </div>
+    <div id="res-acoes" class="acoes"></div>
+  </section>
+</main>
+
+<!-- Configurações -->
+<dialog id="dlg-config">
+  <form method="dialog" class="dlg">
+    <h2>Configurações</h2>
+    <label for="sel-modelo">Modelo de documento</label>
+    <select id="sel-modelo"></select>
+    <button type="button" id="btn-validar" class="link">Validar modelo</button>
+    <div id="validar-msg"></div>
+
+    <label for="impressora">Impressora (opcional)</label>
+    <input id="impressora" placeholder="Em branco = impressora padrão">
+    <p class="dica">Fica salvo neste aparelho.</p>
+
+    <div id="status-servidor" class="dica"></div>
+    <a href="/modelos" class="link">🛠️ Cadastrar novo modelo</a>
+    <button value="ok" class="primario">Fechar</button>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="/web/comum.js"></script>
+<script src="/web/app.js"></script>
+</body>
+</html>

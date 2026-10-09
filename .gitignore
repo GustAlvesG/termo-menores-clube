@@ -1,0 +1,10 @@
+.env
+logs/
+termos/venv/
+termos/output/
+termos/templates/
+termos/__pycache__/
+whatsapp/node_modules/
+whatsapp/.wwebjs_auth/
+whatsapp/.wwebjs_cache/
+whatsapp/media/

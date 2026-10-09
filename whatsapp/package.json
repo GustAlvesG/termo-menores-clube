@@ -1,0 +1,17 @@
+{
+  "name": "print-whatsapp",
+  "version": "1.0.0",
+  "description": "Monitora mensagens do WhatsApp e imprime automaticamente imagens/PDFs recebidos, carimbando o numero do remetente na pagina.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "whatsapp-web.js": "^1.26.0",
+    "qrcode-terminal": "^0.12.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-to-printer": "^5.6.0"
+  }
+}
