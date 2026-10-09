@@ -43,6 +43,9 @@ call :winget Microsoft.msodbcsql.18 || goto falha
 :odbc_pronto
 echo [ok] ODBC Driver 18 for SQL Server
 
+rem ---------- Proxy para pip/npm ----------
+call :configurar_proxy
+
 rem ---------- Ambiente virtual + pacotes Python ----------
 if exist "termos\venv\Scripts\python.exe" goto venv_pronto
 echo [..] Criando ambiente virtual em termos\venv...
@@ -123,6 +126,20 @@ if "%errorlevel%"=="0" exit /b 0
 if "%errorlevel%"=="-1978335189" exit /b 0
 echo [ERRO] Falha ao instalar %~1.
 exit /b 1
+
+:configurar_proxy
+rem Usa o proxy das variaveis HTTPS_PROXY/HTTP_PROXY ou, se nao houver, o proxy do Windows.
+rem O proxy da rede so fala HTTP: com "https://" o pip falha com SSL WRONG_VERSION_NUMBER.
+set "PROXY_URL="
+for /f "usebackq delims=" %%U in (`powershell -NoProfile -Command "$u = $env:HTTPS_PROXY; if (-not $u) { $u = $env:HTTP_PROXY }; if (-not $u) { $s = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -ErrorAction SilentlyContinue; if ($s.ProxyEnable -eq 1 -and $s.ProxyServer) { $u = $s.ProxyServer; if ($u -match 'https=([^;]+)') { $u = $Matches[1] } elseif ($u -match 'http=([^;]+)') { $u = $Matches[1] } } }; if ($u) { 'http://' + ($u -replace '^https?://', '') }"`) do set "PROXY_URL=%%U"
+if not defined PROXY_URL exit /b 0
+set "HTTP_PROXY=%PROXY_URL%"
+set "HTTPS_PROXY=%PROXY_URL%"
+set "NO_PROXY=localhost,127.0.0.1"
+set "npm_config_proxy=%PROXY_URL%"
+set "npm_config_https_proxy=%PROXY_URL%"
+echo [ok] Proxy: %PROXY_URL%
+exit /b 0
 
 :atualizar_path
 rem Programas recem-instalados alteram o PATH do registro, nao o desta janela.
